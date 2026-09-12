@@ -13,7 +13,12 @@ export type {
   VasReconciliation,
   TreasurySummary,
 } from "./transactions";
-export type { ExchangeStatus, CryptoSellRequest, GiftCardSellRequest } from "./exchange";
+export type {
+  ExchangeStatus,
+  CryptoSellRequest,
+  GiftCardSellRequest,
+  GiftCardRiskFlag,
+} from "./exchange";
 export type { KycStatus, KycLevel, KycSubmission } from "./kyc";
 export type {
   MarginConfig,
@@ -29,6 +34,8 @@ export type {
   GiftCardBrandInput,
   GiftCardRate,
   GiftCardRateInput,
+  RiskAction,
+  GiftCardRiskConfig,
 } from "./config";
 export { GIFT_CARD_FORMAT_LABELS } from "./config";
 export type {

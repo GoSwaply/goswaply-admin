@@ -16,6 +16,7 @@ import type {
   GiftCardBrandInput,
   GiftCardRate,
   GiftCardRateInput,
+  GiftCardRiskConfig,
   VasMarginConfig,
   FeeRule,
   BillerPricing,
@@ -127,6 +128,12 @@ export const adminApi = {
   /** Deactivates; never deletes, so quoted history stays resolvable. */
   deactivateGiftCardRate: (id: string) =>
     del<{ ok: boolean }>(`${B}/gift-cards/rates/${id}`),
+
+  // Gift card fraud controls
+  getGiftCardRiskConfig: () =>
+    get<GiftCardRiskConfig>(`${B}/gift-cards/risk-config`),
+  setGiftCardRiskConfig: (body: Partial<GiftCardRiskConfig>) =>
+    patch<GiftCardRiskConfig>(`${B}/gift-cards/risk-config`, body),
 
   // Config – Fee Rules
   listFeeRules: () => get<FeeRule[]>(`${B}/config/fee-rules`),
