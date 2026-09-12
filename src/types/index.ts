@@ -24,7 +24,13 @@ export type {
   CommissionType,
   BillerPricing,
   FeatureFlags,
+  GiftCardFormat,
+  GiftCardBrand,
+  GiftCardBrandInput,
+  GiftCardRate,
+  GiftCardRateInput,
 } from "./config";
+export { GIFT_CARD_FORMAT_LABELS } from "./config";
 export type {
   FraudRuleType,
   FraudRuleAction,
