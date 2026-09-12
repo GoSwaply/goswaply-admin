@@ -13,6 +13,7 @@ import { DateTime } from "@/components/common/DateTime";
 import { ConfirmActionDialog } from "@/components/common/ConfirmActionDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { GiftCardImage } from "./GiftCardImage";
 import { formatMoney } from "@/lib/formatters";
 import { toast } from "sonner";
 import { GIFT_CARD_FORMAT_LABELS } from "@/types";
@@ -288,11 +289,11 @@ export function ExchangeQueueTable({
                       </ul>
                     </div>
                   ) : null}
-                  <div className="col-span-2">
-                    <p className="text-xs text-muted-foreground">Card image</p>
-                    <p className="font-mono text-xs break-all">{viewItem.imageKey}</p>
+                  <div className="col-span-2 space-y-1.5">
+                    <p className="text-xs text-muted-foreground">Card photo</p>
+                    <GiftCardImage requestId={viewItem.id} />
                     {viewItem.imageHash && (
-                      <p className="font-mono text-[10px] text-muted-foreground break-all mt-0.5">
+                      <p className="font-mono text-[10px] text-muted-foreground break-all">
                         sha256 {viewItem.imageHash}
                       </p>
                     )}
@@ -354,6 +355,7 @@ export function ExchangeQueueTable({
                     : "This submission carries no quoted rate, so the payout must be set here."}
                 </p>
               </div>
+              {approveItem && <GiftCardImage requestId={approveItem.id} height="h-44" />}
               {approveItem && isGiftCard(approveItem) && approveItem.riskFlags?.length ? (
                 <div className="text-xs text-amber-800 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 space-y-1">
                   <p className="font-medium flex items-center gap-1.5">

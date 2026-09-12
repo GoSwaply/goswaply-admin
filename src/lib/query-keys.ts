@@ -12,6 +12,7 @@ export const QueryKeys = {
 
   cryptoPending: (params?: object) => ["cryptoPending", params] as const,
   giftCardPending: (params?: object) => ["giftCardPending", params] as const,
+  giftCardImage: (id: string) => ["giftCardImage", id] as const,
   kycPending: (params?: object) => ["kycPending", params] as const,
 
   fraudRules: () => ["fraudRules"] as const,
