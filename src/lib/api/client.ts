@@ -90,7 +90,9 @@ async function handleError(res: Response): Promise<never> {
 export async function req<T>(
   path: string,
   options: RequestInit = {},
-  retry = true
+  retry = true,
+  /** How the successful response is read. Defaults to JSON-or-text. */
+  parse: (res: Response) => Promise<unknown> = parseResponse
 ): Promise<T> {
   const token = accessToken;
   const url = `${API_BASE}${path}`;
@@ -123,18 +125,30 @@ export async function req<T>(
     const { useAuthStore } = await import("@/stores/auth-store");
     useAuthStore.getState().setAccessToken(newToken);
 
-    return req<T>(path, options, false);
+    return req<T>(path, options, false, parse);
   }
 
   if (!res.ok) {
     await handleError(res);
   }
 
-  return parseResponse<T>(res);
+  return parse(res) as Promise<T>;
 }
 
 export function get<T>(path: string, options?: RequestInit) {
   return req<T>(path, { ...options, method: "GET" });
+}
+
+/**
+ * Fetches binary content — a customer's card photo.
+ *
+ * These are served by the API rather than linked, so the request has to carry
+ * the admin's bearer token. That rules out putting the URL straight into an
+ * <img src>, which is why this returns a Blob for the caller to turn into an
+ * object URL.
+ */
+export function getBlob(path: string, options?: RequestInit) {
+  return req<Blob>(path, { ...options, method: "GET" }, true, (res) => res.blob());
 }
 
 export function post<T>(path: string, body?: unknown, options?: RequestInit) {

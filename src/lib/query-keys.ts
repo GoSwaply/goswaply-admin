@@ -12,6 +12,7 @@ export const QueryKeys = {
 
   cryptoPending: (params?: object) => ["cryptoPending", params] as const,
   giftCardPending: (params?: object) => ["giftCardPending", params] as const,
+  giftCardImage: (id: string) => ["giftCardImage", id] as const,
   kycPending: (params?: object) => ["kycPending", params] as const,
 
   fraudRules: () => ["fraudRules"] as const,
@@ -22,6 +23,7 @@ export const QueryKeys = {
   exchangeMargin: () => ["exchangeMargin"] as const,
   giftCardBrands: () => ["giftCardBrands"] as const,
   giftCardRates: (brandId?: string) => ["giftCardRates", brandId] as const,
+  giftCardRiskConfig: () => ["giftCardRiskConfig"] as const,
   vasMargin: () => ["vasMargin"] as const,
   feeRules: () => ["feeRules"] as const,
   billerPricing: () => ["billerPricing"] as const,

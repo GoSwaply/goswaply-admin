@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Eye, CheckCircle2, XCircle } from "lucide-react";
+import { Eye, CheckCircle2, XCircle, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { DateTime } from "@/components/common/DateTime";
 import { ConfirmActionDialog } from "@/components/common/ConfirmActionDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { GiftCardImage } from "./GiftCardImage";
 import { formatMoney } from "@/lib/formatters";
 import { toast } from "sonner";
 import { GIFT_CARD_FORMAT_LABELS } from "@/types";
@@ -128,7 +129,19 @@ export function ExchangeQueueTable({
                     <td className="px-4 py-3">
                       {giftCard ? (
                         <span className="block">
-                          <span className="block">{giftCard.cardType}</span>
+                          <span className="flex items-center gap-1.5">
+                            {giftCard.cardType}
+                            {giftCard.riskFlags?.length ? (
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] border-amber-300 text-amber-700 gap-1"
+                              >
+                                <ShieldAlert className="h-3 w-3" />
+                                {giftCard.riskFlags.length} flag
+                                {giftCard.riskFlags.length > 1 ? "s" : ""}
+                              </Badge>
+                            ) : null}
+                          </span>
                           {option ? (
                             <span className="block text-xs text-muted-foreground">{option}</span>
                           ) : (
@@ -261,9 +274,29 @@ export function ExchangeQueueTable({
                       Submitted without a rate — price this one by hand on approval.
                     </p>
                   )}
-                  <div className="col-span-2">
-                    <p className="text-xs text-muted-foreground">Card image</p>
-                    <p className="font-mono text-xs break-all">{viewItem.imageKey}</p>
+                  {viewItem.riskFlags?.length ? (
+                    <div className="col-span-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 space-y-1.5">
+                      <p className="text-xs font-medium text-amber-800 flex items-center gap-1.5">
+                        <ShieldAlert className="h-3.5 w-3.5" />
+                        Flagged for review
+                      </p>
+                      <ul className="space-y-1">
+                        {viewItem.riskFlags.map((flag) => (
+                          <li key={flag.code} className="text-xs text-amber-900">
+                            <span className="font-mono">{flag.code}</span> — {flag.detail}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  <div className="col-span-2 space-y-1.5">
+                    <p className="text-xs text-muted-foreground">Card photo</p>
+                    <GiftCardImage requestId={viewItem.id} />
+                    {viewItem.imageHash && (
+                      <p className="font-mono text-[10px] text-muted-foreground break-all">
+                        sha256 {viewItem.imageHash}
+                      </p>
+                    )}
                   </div>
                 </>
               ) : (
@@ -322,6 +355,20 @@ export function ExchangeQueueTable({
                     : "This submission carries no quoted rate, so the payout must be set here."}
                 </p>
               </div>
+              {approveItem && <GiftCardImage requestId={approveItem.id} height="h-44" />}
+              {approveItem && isGiftCard(approveItem) && approveItem.riskFlags?.length ? (
+                <div className="text-xs text-amber-800 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 space-y-1">
+                  <p className="font-medium flex items-center gap-1.5">
+                    <ShieldAlert className="h-3.5 w-3.5" />
+                    This submission was flagged
+                  </p>
+                  <ul className="space-y-0.5">
+                    {approveItem.riskFlags.map((flag) => (
+                      <li key={flag.code}>{flag.detail}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                 Approving credits the customer&apos;s wallet immediately. It cannot be undone here.
               </p>

@@ -1,4 +1,4 @@
-import { get, post, patch, put, del } from "./client";
+import { get, getBlob, post, patch, put, del } from "./client";
 import type {
   DashboardOverview,
   UserListItem,
@@ -16,6 +16,7 @@ import type {
   GiftCardBrandInput,
   GiftCardRate,
   GiftCardRateInput,
+  GiftCardRiskConfig,
   VasMarginConfig,
   FeeRule,
   BillerPricing,
@@ -92,6 +93,8 @@ export const adminApi = {
     post<GiftCardSellRequest>(`${B}/exchange/gift-card/${id}/approve`, body),
   rejectGiftCard: (id: string, body: { reason: string }) =>
     post<GiftCardSellRequest>(`${B}/exchange/gift-card/${id}/reject`, body),
+  /** The customer's card photo. Streamed by the API, never a public link. */
+  giftCardImage: (id: string) => getBlob(`${B}/exchange/gift-card/${id}/image`),
 
   // KYC
   kycPending: (params?: { page?: number; limit?: number }) =>
@@ -127,6 +130,12 @@ export const adminApi = {
   /** Deactivates; never deletes, so quoted history stays resolvable. */
   deactivateGiftCardRate: (id: string) =>
     del<{ ok: boolean }>(`${B}/gift-cards/rates/${id}`),
+
+  // Gift card fraud controls
+  getGiftCardRiskConfig: () =>
+    get<GiftCardRiskConfig>(`${B}/gift-cards/risk-config`),
+  setGiftCardRiskConfig: (body: Partial<GiftCardRiskConfig>) =>
+    patch<GiftCardRiskConfig>(`${B}/gift-cards/risk-config`, body),
 
   // Config – Fee Rules
   listFeeRules: () => get<FeeRule[]>(`${B}/config/fee-rules`),

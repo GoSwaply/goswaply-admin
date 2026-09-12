@@ -107,3 +107,27 @@ export interface GiftCardRateInput {
   ratePerUnit: number;
   active: boolean;
 }
+
+// ==========================================
+// GIFT CARD FRAUD CONTROLS
+// ==========================================
+
+/** What a rule does when it fires. */
+export type RiskAction = "BLOCK" | "FLAG" | "OFF";
+
+export interface GiftCardRiskConfig {
+  /**
+   * When false every rule still runs and records what it would have done,
+   * but nothing is blocked — so a threshold can be measured against real
+   * traffic before it starts turning customers away.
+   */
+  enforced: boolean;
+  maxPendingSubmissions: number;
+  maxSubmissionsPerHour: number;
+  maxSubmissionsPerDay: number;
+  /** Naira of quoted payout one account may submit in a day. */
+  maxPayoutNairaPerDay: number;
+  duplicateImageAction: RiskAction;
+  velocityAction: RiskAction;
+  dailyValueAction: RiskAction;
+}

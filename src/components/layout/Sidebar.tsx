@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, ArrowLeftRight, RefreshCw, Bitcoin, Gift, ScanFace,
-  ShieldAlert, Briefcase, ScrollText, Settings2, DollarSign, Tag, Wrench,
+  ShieldAlert, ShieldCheck, Briefcase, ScrollText, Settings2, DollarSign, Tag, Wrench,
   Flag, MonitorOff, Megaphone, Bell, Activity, Webhook, Terminal, Lock,
   ChevronDown, ChevronRight,
 } from "lucide-react";
@@ -58,6 +58,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Compliance",
     items: [
       { label: "Fraud Rules", href: "/compliance/fraud-rules", icon: <ShieldAlert className="h-4 w-4" /> },
+      { label: "Gift Card Fraud", href: "/compliance/gift-card-risk", icon: <ShieldCheck className="h-4 w-4" /> },
       { label: "Cases", href: "/compliance/cases", icon: <Briefcase className="h-4 w-4" /> },
       { label: "Audit Log", href: "/compliance/audit-log", icon: <ScrollText className="h-4 w-4" /> },
     ],

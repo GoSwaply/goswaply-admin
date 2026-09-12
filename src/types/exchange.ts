@@ -24,6 +24,12 @@ export interface CryptoSellRequest {
   updatedAt: string;
 }
 
+/** A risk rule that fired on a submission without blocking it. */
+export interface GiftCardRiskFlag {
+  code: string;
+  detail: string;
+}
+
 export interface GiftCardSellRequest {
   id: string;
   userId: string;
@@ -49,4 +55,9 @@ export interface GiftCardSellRequest {
   currency: string | null;
   format: GiftCardFormat | null;
   ratePerUnit: number | string | null;
+
+  /** SHA-256 of the uploaded image. Null on submissions predating the check. */
+  imageHash: string | null;
+  /** Rules that fired without blocking. Null means nothing fired. */
+  riskFlags: GiftCardRiskFlag[] | null;
 }
