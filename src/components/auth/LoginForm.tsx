@@ -35,8 +35,17 @@ export function LoginForm() {
       setAuth(res.accessToken, res.user);
       router.push("/dashboard");
     } catch (err) {
-      // Do not distinguish email vs password errors
-      setServerError("Login failed. Please check your credentials and try again.");
+      // Still never says whether the email or the password was wrong — that
+      // would confirm which accounts exist. But a request that never reached
+      // the API is not a credential problem, and saying so cost real time:
+      // a CORS rejection looked exactly like a wrong password.
+      const message =
+        err instanceof TypeError
+          ? "Could not reach the API. Check your connection, or that this site is allowed to call it."
+          : err instanceof Error && /\b(404|not found)\b/i.test(err.message)
+            ? "The API address looks wrong. Check NEXT_PUBLIC_API_BASE_URL for this deployment."
+            : "Login failed. Please check your credentials and try again.";
+      setServerError(message);
     }
   };
 

@@ -106,7 +106,7 @@ export default function WebhooksPage() {
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setViewEvent(ev)}>
                             <Eye className="h-3.5 w-3.5" />
                           </Button>
-                          {ev.status === "FAILED" && (
+                          {ev.status === "FAILED_PERMANENT" && (
                             <RoleGate allow={["SUPER_ADMIN"]}>
                               <Button
                                 variant="ghost"
@@ -142,7 +142,18 @@ export default function WebhooksPage() {
                 <div><p className="text-xs text-muted-foreground">Source</p><p>{viewEvent.source}</p></div>
                 <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewEvent.status} /></div>
                 <div><p className="text-xs text-muted-foreground">Retries</p><p>{viewEvent.retryCount}</p></div>
-                {viewEvent.errorMessage && <div className="col-span-2"><p className="text-xs text-muted-foreground">Error</p><p className="text-destructive text-sm">{viewEvent.errorMessage}</p></div>}
+                {viewEvent.lastError && (
+                  <div className="col-span-2">
+                    <p className="text-xs text-muted-foreground">Last error</p>
+                    <p className="text-destructive text-sm">{viewEvent.lastError}</p>
+                  </div>
+                )}
+                {viewEvent.nextRetryAt && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">Next retry</p>
+                    <DateTime value={viewEvent.nextRetryAt} />
+                  </div>
+                )}
               </div>
               <JsonViewer data={viewEvent.payload} label="Payload" />
             </div>

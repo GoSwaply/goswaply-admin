@@ -42,3 +42,6 @@ Thumbs.db
 *.sublime-workspace
 /vscode
 .vscode
+
+# TypeScript incremental build cache — rewritten on every build
+tsconfig.tsbuildinfo
