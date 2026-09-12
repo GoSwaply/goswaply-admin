@@ -66,6 +66,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Configuration",
     items: [
       { label: "Margins", href: "/config/margins", icon: <Settings2 className="h-4 w-4" />, superAdminOnly: true },
+      { label: "Gift Card Rates", href: "/config/gift-cards", icon: <Gift className="h-4 w-4" /> },
       { label: "Fee Rules", href: "/config/fee-rules", icon: <DollarSign className="h-4 w-4" />, superAdminOnly: true },
       { label: "Biller Pricing", href: "/config/biller-pricing", icon: <Tag className="h-4 w-4" />, superAdminOnly: true },
       { label: "Feature Flags", href: "/config/feature-flags", icon: <Flag className="h-4 w-4" />, superAdminOnly: true },

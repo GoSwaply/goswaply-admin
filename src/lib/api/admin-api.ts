@@ -12,6 +12,10 @@ import type {
   GiftCardSellRequest,
   KycSubmission,
   MarginConfig,
+  GiftCardBrand,
+  GiftCardBrandInput,
+  GiftCardRate,
+  GiftCardRateInput,
   VasMarginConfig,
   FeeRule,
   BillerPricing,
@@ -75,17 +79,16 @@ export const adminApi = {
   getTreasury: () => get<TreasurySummary>(`${B}/treasury/summary`),
 
   // Exchange – Crypto
-  cryptoPending: (params?: { page?: number; limit?: number }) =>
-    get<Paginated<CryptoSellRequest>>(`${B}/exchange/crypto/pending${qs((params ?? {}) as Record<string, string | number | boolean | undefined>)}`),
-  approveCrypto: (id: string, body?: { note?: string }) =>
-    post<CryptoSellRequest>(`${B}/exchange/crypto/${id}/approve`, body),
+  // Both pending endpoints return a bare array, not a paginated envelope.
+  cryptoPending: () => get<CryptoSellRequest[]>(`${B}/exchange/crypto/pending`),
+  approveCrypto: (id: string) => post<CryptoSellRequest>(`${B}/exchange/crypto/${id}/approve`),
   rejectCrypto: (id: string, body: { reason: string }) =>
     post<CryptoSellRequest>(`${B}/exchange/crypto/${id}/reject`, body),
 
   // Exchange – Gift Card
-  giftCardPending: (params?: { page?: number; limit?: number }) =>
-    get<Paginated<GiftCardSellRequest>>(`${B}/exchange/gift-card/pending${qs((params ?? {}) as Record<string, string | number | boolean | undefined>)}`),
-  approveGiftCard: (id: string, body?: { note?: string }) =>
+  giftCardPending: () => get<GiftCardSellRequest[]>(`${B}/exchange/gift-card/pending`),
+  /** `nairaValue` overrides the payout quoted at submission. */
+  approveGiftCard: (id: string, body?: { nairaValue?: number }) =>
     post<GiftCardSellRequest>(`${B}/exchange/gift-card/${id}/approve`, body),
   rejectGiftCard: (id: string, body: { reason: string }) =>
     post<GiftCardSellRequest>(`${B}/exchange/gift-card/${id}/reject`, body),
@@ -105,6 +108,25 @@ export const adminApi = {
   getVasMargin: () => get<VasMarginConfig>(`${B}/config/vas-margin`),
   setVasMargin: (body: Partial<VasMarginConfig>) =>
     patch<VasMarginConfig>(`${B}/config/vas-margin`, body),
+
+  // Gift card catalogue – what the desk buys, and what it pays
+  listGiftCardBrands: () => get<GiftCardBrand[]>(`${B}/gift-cards/brands`),
+  createGiftCardBrand: (body: GiftCardBrandInput) =>
+    post<GiftCardBrand>(`${B}/gift-cards/brands`, body),
+  updateGiftCardBrand: (id: string, body: Partial<GiftCardBrandInput>) =>
+    patch<GiftCardBrand>(`${B}/gift-cards/brands/${id}`, body),
+
+  listGiftCardRates: (brandId?: string) =>
+    get<GiftCardRate[]>(
+      `${B}/gift-cards/rates${brandId ? `?brandId=${brandId}` : ""}`
+    ),
+  createGiftCardRate: (body: GiftCardRateInput) =>
+    post<GiftCardRate>(`${B}/gift-cards/rates`, body),
+  updateGiftCardRate: (id: string, body: Partial<GiftCardRateInput>) =>
+    patch<GiftCardRate>(`${B}/gift-cards/rates/${id}`, body),
+  /** Deactivates; never deletes, so quoted history stays resolvable. */
+  deactivateGiftCardRate: (id: string) =>
+    del<{ ok: boolean }>(`${B}/gift-cards/rates/${id}`),
 
   // Config – Fee Rules
   listFeeRules: () => get<FeeRule[]>(`${B}/config/fee-rules`),

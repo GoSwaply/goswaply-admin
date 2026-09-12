@@ -15,7 +15,7 @@ export default function CryptoQueuePage() {
     refetchInterval: 30_000,
   });
 
-  const items = data?.data ?? [];
+  const items = data ?? [];
 
   return (
     <div className="space-y-5 animate-fade-in">

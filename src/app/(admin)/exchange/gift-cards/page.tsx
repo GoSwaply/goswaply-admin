@@ -15,7 +15,7 @@ export default function GiftCardsQueuePage() {
     refetchInterval: 30_000,
   });
 
-  const items = data?.data ?? [];
+  const items = data ?? [];
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -31,7 +31,7 @@ export default function GiftCardsQueuePage() {
         <ExchangeQueueTable
           items={items}
           type="gift-card"
-          onApprove={(id) => adminApi.approveGiftCard(id)}
+          onApprove={(id, nairaValue) => adminApi.approveGiftCard(id, { nairaValue })}
           onReject={(id, reason) => adminApi.rejectGiftCard(id, { reason })}
           invalidateKey={QueryKeys.giftCardPending()}
         />
