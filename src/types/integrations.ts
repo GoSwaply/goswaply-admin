@@ -10,11 +10,11 @@ export interface GatewayHealth {
   checkedAt: string;
 }
 
-export type WebhookEventStatus =
-  | "RECEIVED"
-  | "PROCESSED"
-  | "FAILED"
-  | "REPROCESSING";
+/**
+ * PENDING covers both "not tried yet" and "failed, will retry" — the retry
+ * worker picks up anything PENDING whose nextRetryAt is due.
+ */
+export type WebhookEventStatus = "PENDING" | "SUCCESS" | "FAILED_PERMANENT";
 
 export interface WebhookEvent {
   id: string;
@@ -22,8 +22,10 @@ export interface WebhookEvent {
   eventType: string;
   payload: Record<string, unknown>;
   status: WebhookEventStatus;
-  errorMessage: string | null;
+  lastError: string | null;
   retryCount: number;
   processedAt: string | null;
+  /** When the retry worker will next pick it up. Null means immediately. */
+  nextRetryAt: string | null;
   createdAt: string;
 }

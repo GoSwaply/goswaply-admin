@@ -1,11 +1,18 @@
+/**
+ * The margin taken on a crypto sell, as a percentage.
+ *
+ * One figure, because the API keeps one. There is no separate gift card
+ * margin: gift card payouts come from the rate matrix, where the desk sets
+ * the naira-per-unit price outright, and applying a margin on top of that
+ * would take the spread twice.
+ */
 export interface MarginConfig {
-  cryptoBuyMarginPercent: number;
-  cryptoSellMarginPercent: number;
-  giftCardMarginPercent: number;
+  marginPercent: number;
 }
 
+/** Default margin on bill payments, as a percentage. */
 export interface VasMarginConfig {
-  defaultVasMarginPercent: number;
+  marginPercent: number;
 }
 
 export type FeeType = "PERCENTAGE" | "FLAT" | "PERCENTAGE_AND_FLAT";

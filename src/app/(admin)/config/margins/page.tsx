@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api/admin-api";
 import { QueryKeys } from "@/lib/query-keys";
@@ -15,141 +15,180 @@ import { ConfirmActionDialog } from "@/components/common/ConfirmActionDialog";
 import { RoleGate } from "@/components/rbac/RoleGate";
 import { toast } from "sonner";
 
+/**
+ * Two margins, because the API keeps two.
+ *
+ * This page used to offer separate crypto-buy, crypto-sell and gift-card
+ * margins. None of those existed: the API stores one exchange margin and one
+ * VAS margin, so the extra fields displayed nothing and saved nothing.
+ *
+ * There is deliberately no gift card margin. Gift card payouts come from the
+ * rate matrix, where the desk sets the naira-per-unit price outright — taking
+ * a margin on top would take the spread twice.
+ */
 export default function MarginsPage() {
   const queryClient = useQueryClient();
-  const [confirmExchange, setConfirmExchange] = useState(false);
-  const [confirmVas, setConfirmVas] = useState(false);
+  const [confirm, setConfirm] = useState<"exchange" | "vas" | null>(null);
+  const [exchangeValue, setExchangeValue] = useState<string>("");
+  const [vasValue, setVasValue] = useState<string>("");
 
-  const { data: exchange, isLoading: exLoading, isError: exError, error: exErr, refetch: refetchEx } = useQuery({
+  const exchange = useQuery({
     queryKey: QueryKeys.exchangeMargin(),
     queryFn: adminApi.getExchangeMargin,
   });
-
-  const { data: vas, isLoading: vasLoading, isError: vasError, error: vasErr, refetch: refetchVas } = useQuery({
+  const vas = useQuery({
     queryKey: QueryKeys.vasMargin(),
     queryFn: adminApi.getVasMargin,
   });
 
-  const [exValues, setExValues] = useState({ cryptoBuyMarginPercent: 0, cryptoSellMarginPercent: 0, giftCardMarginPercent: 0 });
-  const [vasValue, setVasValue] = useState(0);
+  useEffect(() => {
+    if (exchange.data) setExchangeValue(String(exchange.data.marginPercent));
+  }, [exchange.data]);
+  useEffect(() => {
+    if (vas.data) setVasValue(String(vas.data.marginPercent));
+  }, [vas.data]);
 
-  const updateExMutation = useMutation({
-    mutationFn: () => adminApi.setExchangeMargin(exValues),
-    onSuccess: () => {
-      toast.success("Exchange margins updated.");
-      queryClient.invalidateQueries({ queryKey: QueryKeys.exchangeMargin() });
-      setConfirmExchange(false);
+  const saveExchange = useMutation({
+    mutationFn: () =>
+      adminApi.setExchangeMargin({ marginPercent: Number(exchangeValue) }),
+    onSuccess: (saved) => {
+      toast.success("Exchange margin updated.");
+      queryClient.setQueryData(QueryKeys.exchangeMargin(), saved);
+      setConfirm(null);
     },
-    onError: () => toast.error("Failed to update exchange margins."),
+    onError: (e: Error) => toast.error(e.message || "Could not update the exchange margin."),
   });
 
-  const updateVasMutation = useMutation({
-    mutationFn: () => adminApi.setVasMargin({ defaultVasMarginPercent: vasValue }),
-    onSuccess: () => {
+  const saveVas = useMutation({
+    mutationFn: () => adminApi.setVasMargin({ marginPercent: Number(vasValue) }),
+    onSuccess: (saved) => {
       toast.success("VAS margin updated.");
-      queryClient.invalidateQueries({ queryKey: QueryKeys.vasMargin() });
-      setConfirmVas(false);
+      queryClient.setQueryData(QueryKeys.vasMargin(), saved);
+      setConfirm(null);
     },
-    onError: () => toast.error("Failed to update VAS margin."),
+    onError: (e: Error) => toast.error(e.message || "Could not update the VAS margin."),
   });
 
-  if (exLoading || vasLoading) return <PageSkeleton />;
+  if (exchange.isLoading || vas.isLoading) return <PageSkeleton />;
+
+  const valid = (v: string) => {
+    const n = Number(v);
+    return v !== "" && Number.isFinite(n) && n >= 0 && n <= 100;
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <PageHeader title="Margins" description="Configure exchange and VAS margin percentages." />
+      <PageHeader
+        title="Margins"
+        description="What the platform keeps on a crypto sell and on bill payments."
+      />
 
       <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
-        Margin changes affect profit calculations and customer pricing. Verify values carefully before saving.
+        These change what customers are quoted on their next transaction. Check
+        the figure before saving.
       </p>
 
-      {exError && <ErrorState error={exErr} onRetry={refetchEx} title="Failed to load exchange margins" />}
-      {vasError && <ErrorState error={vasErr} onRetry={refetchVas} title="Failed to load VAS margin" />}
+      {exchange.isError && (
+        <ErrorState
+          error={exchange.error}
+          onRetry={exchange.refetch}
+          title="Failed to load the exchange margin"
+        />
+      )}
+      {vas.isError && (
+        <ErrorState error={vas.error} onRetry={vas.refetch} title="Failed to load the VAS margin" />
+      )}
 
-      {/* Exchange Margin */}
-      {exchange && (
+      {exchange.data && (
         <Card>
           <CardHeader>
-            <CardTitle>Exchange Margins</CardTitle>
+            <CardTitle>Crypto Sell Margin</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <RoleGate allow={["SUPER_ADMIN"]} mode="readonly">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                  { label: "Crypto Buy Margin (%)", key: "cryptoBuyMarginPercent", current: exchange.cryptoBuyMarginPercent },
-                  { label: "Crypto Sell Margin (%)", key: "cryptoSellMarginPercent", current: exchange.cryptoSellMarginPercent },
-                  { label: "Gift Card Margin (%)", key: "giftCardMarginPercent", current: exchange.giftCardMarginPercent },
-                ].map(({ label, key, current }) => (
-                  <div key={key} className="space-y-1.5">
-                    <Label>{label}</Label>
-                    <p className="text-xs text-muted-foreground">Current: {current}%</p>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min={0}
-                      max={100}
-                      defaultValue={current}
-                      onChange={(e) => setExValues((v) => ({ ...v, [key]: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                ))}
+              <div className="max-w-xs space-y-1.5">
+                <Label htmlFor="exchange-margin">Margin (%)</Label>
+                <p className="text-xs text-muted-foreground">
+                  Currently {exchange.data.marginPercent}%
+                </p>
+                <Input
+                  id="exchange-margin"
+                  type="number"
+                  step="0.01"
+                  min={0}
+                  max={100}
+                  value={exchangeValue}
+                  onChange={(e) => setExchangeValue(e.target.value)}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Taken off the live rate, so a customer selling crypto receives{" "}
+                  {(100 - (Number(exchangeValue) || 0)).toFixed(2)}% of market.
+                </p>
               </div>
-              <Button onClick={() => { setExValues({ cryptoBuyMarginPercent: exchange.cryptoBuyMarginPercent, cryptoSellMarginPercent: exchange.cryptoSellMarginPercent, giftCardMarginPercent: exchange.giftCardMarginPercent }); setConfirmExchange(true); }}>
-                Save Exchange Margins
+              <Button disabled={!valid(exchangeValue)} onClick={() => setConfirm("exchange")}>
+                Save Exchange Margin
               </Button>
             </RoleGate>
           </CardContent>
         </Card>
       )}
 
-      {/* VAS Margin */}
-      {vas && (
+      {vas.data && (
         <Card>
           <CardHeader>
-            <CardTitle>VAS Default Margin</CardTitle>
+            <CardTitle>Bill Payment Margin</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <RoleGate allow={["SUPER_ADMIN"]} mode="readonly">
               <div className="max-w-xs space-y-1.5">
-                <Label>Default VAS Margin (%)</Label>
-                <p className="text-xs text-muted-foreground">Current: {vas.defaultVasMarginPercent}%</p>
+                <Label htmlFor="vas-margin">Default margin (%)</Label>
+                <p className="text-xs text-muted-foreground">
+                  Currently {vas.data.marginPercent}%
+                </p>
                 <Input
+                  id="vas-margin"
                   type="number"
                   step="0.01"
                   min={0}
                   max={100}
-                  defaultValue={vas.defaultVasMarginPercent}
-                  onChange={(e) => setVasValue(parseFloat(e.target.value) || 0)}
+                  value={vasValue}
+                  onChange={(e) => setVasValue(e.target.value)}
                 />
+                <p className="text-[11px] text-muted-foreground">
+                  Applied where a biller has no specific price set under Biller
+                  Pricing.
+                </p>
               </div>
-              <Button onClick={() => setConfirmVas(true)}>Save VAS Margin</Button>
+              <Button disabled={!valid(vasValue)} onClick={() => setConfirm("vas")}>
+                Save VAS Margin
+              </Button>
             </RoleGate>
           </CardContent>
         </Card>
       )}
 
       <ConfirmActionDialog
-        open={confirmExchange}
-        title="Update Exchange Margins"
-        description="You are about to update the exchange margin configuration."
-        consequence="This will affect all new crypto and gift card exchange calculations immediately."
-        confirmLabel="Update Margins"
+        open={confirm === "exchange"}
+        title="Update the crypto sell margin"
+        description={`Customers selling crypto will receive ${(100 - (Number(exchangeValue) || 0)).toFixed(2)}% of the market rate.`}
+        consequence="This applies to every crypto quote from the moment you save."
+        confirmLabel="Update Margin"
         variant="warning"
-        onConfirm={() => updateExMutation.mutate()}
-        onCancel={() => setConfirmExchange(false)}
-        loading={updateExMutation.isPending}
+        onConfirm={() => saveExchange.mutate()}
+        onCancel={() => setConfirm(null)}
+        loading={saveExchange.isPending}
       />
 
       <ConfirmActionDialog
-        open={confirmVas}
-        title="Update VAS Margin"
-        description="You are about to update the default VAS margin."
-        consequence="This will affect all VAS transaction profit calculations immediately."
-        confirmLabel="Update VAS Margin"
+        open={confirm === "vas"}
+        title="Update the bill payment margin"
+        description={`The default margin becomes ${Number(vasValue) || 0}%.`}
+        consequence="This applies to every biller without its own price, immediately."
+        confirmLabel="Update Margin"
         variant="warning"
-        onConfirm={() => updateVasMutation.mutate()}
-        onCancel={() => setConfirmVas(false)}
-        loading={updateVasMutation.isPending}
+        onConfirm={() => saveVas.mutate()}
+        onCancel={() => setConfirm(null)}
+        loading={saveVas.isPending}
       />
     </div>
   );
