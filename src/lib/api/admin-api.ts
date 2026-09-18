@@ -17,6 +17,7 @@ import type {
   GiftCardRate,
   GiftCardRateInput,
   GiftCardRiskConfig,
+  SellPromptConfig,
   VasMarginConfig,
   FeeRule,
   BillerPricing,
@@ -142,6 +143,11 @@ export const adminApi = {
     get<GiftCardRiskConfig>(`${B}/gift-cards/risk-config`),
   setGiftCardRiskConfig: (body: Partial<GiftCardRiskConfig>) =>
     patch<GiftCardRiskConfig>(`${B}/gift-cards/risk-config`, body),
+
+  // The open-app nudge
+  getSellPrompt: () => get<SellPromptConfig>(`${B}/gift-cards/sell-prompt`),
+  setSellPrompt: (body: Partial<SellPromptConfig>) =>
+    patch<SellPromptConfig>(`${B}/gift-cards/sell-prompt`, body),
 
   // Config – Fee Rules
   listFeeRules: () => get<FeeRule[]>(`${B}/config/fee-rules`),
