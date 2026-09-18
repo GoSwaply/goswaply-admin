@@ -71,6 +71,16 @@ export interface GiftCardBrand {
   iconUrl: string | null;
   active: boolean;
   sortOrder: number;
+  /** Minutes the desk advertises as its turnaround for this brand. */
+  processingMinutes: number;
+  /** How many priced options sit beneath it. */
+  activeRates?: number;
+  totalRates?: number;
+  /**
+   * Active AND priced. An active brand with no live rate is a dead end: the
+   * seller taps it, finds nothing, and decides the app is broken.
+   */
+  sellable?: boolean;
 }
 
 /** One price: a brand, in a country, in a format, within a denomination band. */
@@ -96,6 +106,7 @@ export interface GiftCardBrandInput {
   iconUrl?: string | null;
   active: boolean;
   sortOrder: number;
+  processingMinutes: number;
 }
 
 /**

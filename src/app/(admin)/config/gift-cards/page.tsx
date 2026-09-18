@@ -20,6 +20,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { ConfirmActionDialog } from "@/components/common/ConfirmActionDialog";
 import { RoleGate } from "@/components/rbac/RoleGate";
+import { BrandCatalogue } from "@/components/exchange/BrandCatalogue";
 import {
   giftCardBrandSchema,
   giftCardRateSchema,
@@ -110,7 +111,14 @@ export default function GiftCardRatesPage() {
 
   const brandForm = useForm<GiftCardBrandFormInput>({
     resolver: zodResolver(giftCardBrandSchema),
-    defaultValues: { code: "", name: "", iconUrl: "", active: true, sortOrder: 0 },
+    defaultValues: {
+      code: "",
+      name: "",
+      iconUrl: "",
+      active: true,
+      sortOrder: 0,
+      processingMinutes: 60,
+    },
   });
 
   const createBrand = useMutation({
@@ -133,6 +141,7 @@ export default function GiftCardRatesPage() {
         iconUrl: values.iconUrl || null,
         active: values.active,
         sortOrder: values.sortOrder,
+        processingMinutes: values.processingMinutes,
       }),
     onSuccess: () => {
       toast.success("Brand updated.");
@@ -151,6 +160,7 @@ export default function GiftCardRatesPage() {
       iconUrl: "",
       active: true,
       sortOrder: brands.length + 1,
+      processingMinutes: 60,
     });
     setBrandDialog(true);
   };
@@ -163,6 +173,7 @@ export default function GiftCardRatesPage() {
       iconUrl: brand.iconUrl ?? "",
       active: brand.active,
       sortOrder: brand.sortOrder,
+      processingMinutes: brand.processingMinutes ?? 60,
     });
     setBrandDialog(true);
   };
@@ -314,60 +325,13 @@ export default function GiftCardRatesPage() {
             description="Add the first brand the desk will buy, then set its rates."
           />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-5 items-start">
-            {/* Brands */}
-            <div className="rounded-2xl border overflow-hidden">
-              <div className="px-4 py-3 border-b bg-muted/40 text-xs font-medium text-muted-foreground">
-                Brands
-              </div>
-              <ul className="divide-y">
-                {brands.map((brand) => (
-                  <li key={brand.id}>
-                    <div
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-2.5 hover:bg-muted/20",
-                        brand.id === selectedBrandId && "bg-muted/40",
-                      )}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setSelectedBrandId(brand.id)}
-                        className="flex-1 flex items-center gap-2 text-left min-w-0"
-                      >
-                        {brand.iconUrl ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img src={brand.iconUrl} alt="" className="h-6 w-6 rounded object-contain shrink-0" />
-                        ) : (
-                          <span className="h-6 w-6 rounded bg-muted grid place-items-center shrink-0">
-                            <Gift className="h-3.5 w-3.5 text-muted-foreground" />
-                          </span>
-                        )}
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-medium">{brand.name}</span>
-                          <span className="block truncate font-mono text-[10px] text-muted-foreground">
-                            {brand.code}
-                          </span>
-                        </span>
-                      </button>
-                      {!brand.active && (
-                        <Badge variant="outline" className="text-[10px] shrink-0">Off</Badge>
-                      )}
-                      <RoleGate allow={["SUPER_ADMIN"]}>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 shrink-0"
-                          onClick={() => openEditBrand(brand)}
-                          aria-label={"Edit " + brand.name}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                      </RoleGate>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5 items-start">
+            <BrandCatalogue
+              brands={brands}
+              selectedBrandId={selectedBrandId}
+              onSelect={setSelectedBrandId}
+              onEdit={openEditBrand}
+            />
 
             {/* Rate matrix */}
             <div className="space-y-4">
@@ -526,12 +490,31 @@ export default function GiftCardRatesPage() {
                 )}
               </div>
               <div className="space-y-1.5">
-                <Label>Order</Label>
+                <Label htmlFor="brand-order">Order</Label>
                 <Input
+                  id="brand-order"
                   type="number"
                   min={0}
                   {...brandForm.register("sortOrder", { valueAsNumber: true })}
                 />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="brand-minutes">Turnaround (minutes)</Label>
+                <Input
+                  id="brand-minutes"
+                  type="number"
+                  min={1}
+                  {...brandForm.register("processingMinutes", { valueAsNumber: true })}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Shown to sellers before they commit. Promise what the queue
+                  actually does.
+                </p>
+                {brandForm.formState.errors.processingMinutes && (
+                  <p className="text-xs text-destructive">
+                    {brandForm.formState.errors.processingMinutes.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label>Buying</Label>

@@ -118,6 +118,12 @@ export const adminApi = {
     post<GiftCardBrand>(`${B}/gift-cards/brands`, body),
   updateGiftCardBrand: (id: string, body: Partial<GiftCardBrandInput>) =>
     patch<GiftCardBrand>(`${B}/gift-cards/brands/${id}`, body),
+  /** Switching on a brand with no live rate is refused by name, not silently. */
+  setGiftCardBrandsActive: (body: { ids: string[]; active: boolean }) =>
+    patch<{ updated: number; blocked: string[]; message: string }>(
+      `${B}/gift-cards/brands/bulk`,
+      body,
+    ),
 
   listGiftCardRates: (brandId?: string) =>
     get<GiftCardRate[]>(

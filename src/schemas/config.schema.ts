@@ -37,6 +37,7 @@ export const giftCardBrandSchema = z.object({
   iconUrl: z.string().url("Enter a full image URL").or(z.literal("")).optional(),
   active: z.boolean(),
   sortOrder: z.number().int().min(0),
+  processingMinutes: z.number().int().min(1, "At least a minute").max(10080),
 });
 
 export const giftCardRateSchema = z
