@@ -36,6 +36,10 @@ export type {
   GiftCardRateInput,
   RiskAction,
   GiftCardRiskConfig,
+  SellPromptAction,
+  SellPromptFrequency,
+  SellPromptAudience,
+  SellPromptConfig,
 } from "./config";
 export { GIFT_CARD_FORMAT_LABELS } from "./config";
 export type {

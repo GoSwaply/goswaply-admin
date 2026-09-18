@@ -149,3 +149,36 @@ export interface GiftCardRiskConfig {
   velocityAction: RiskAction;
   dailyValueAction: RiskAction;
 }
+
+// ==========================================
+// OPEN-APP SELL PROMPT
+// ==========================================
+
+export type SellPromptAction = "SELL" | "RATES" | "URL";
+export type SellPromptFrequency = "EVERY_OPEN" | "DAILY" | "ONCE";
+export type SellPromptAudience = "EVERYONE" | "NEVER_SOLD" | "HAS_SOLD";
+
+/**
+ * The nudge shown when the app opens.
+ *
+ * Title and body accept {brand} {rate} {currency} {country} {minutes}, filled
+ * with today's figures at request time — so copy written once stays current
+ * instead of quoting the price on the day it was written.
+ */
+export interface SellPromptConfig {
+  enabled: boolean;
+  title: string;
+  body: string;
+  primaryLabel: string;
+  primaryAction: SellPromptAction;
+  /** Only read when primaryAction is URL. */
+  primaryUrl: string;
+  secondaryLabel: string;
+  /** The live brand and price block beneath the words. */
+  showRateCard: boolean;
+  frequency: SellPromptFrequency;
+  audience: SellPromptAudience;
+  /** ISO dates, or empty for no window. A campaign that ends on its own. */
+  startsAt: string;
+  endsAt: string;
+}
