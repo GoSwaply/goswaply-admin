@@ -18,6 +18,7 @@ import type {
   GiftCardRateInput,
   GiftCardRiskConfig,
   SellPromptConfig,
+  FlightReferralConfig,
   VasMarginConfig,
   FeeRule,
   BillerPricing,
@@ -148,6 +149,10 @@ export const adminApi = {
   getSellPrompt: () => get<SellPromptConfig>(`${B}/gift-cards/sell-prompt`),
   setSellPrompt: (body: Partial<SellPromptConfig>) =>
     patch<SellPromptConfig>(`${B}/gift-cards/sell-prompt`, body),
+
+  getFlightReferral: () => get<FlightReferralConfig>(`${B}/config/flight-referral`),
+  setFlightReferral: (body: Partial<FlightReferralConfig>) =>
+    patch<FlightReferralConfig>(`${B}/config/flight-referral`, body),
 
   // Config – Fee Rules
   listFeeRules: () => get<FeeRule[]>(`${B}/config/fee-rules`),

@@ -182,3 +182,17 @@ export interface SellPromptConfig {
   startsAt: string;
   endsAt: string;
 }
+
+/**
+ * Flights are a referral to a partner site, not something Swaply sells, so the
+ * whole feature is this one link.
+ */
+export interface FlightReferralConfig {
+  enabled: boolean;
+  /** Must be https. Stored as off if it is not. */
+  url: string;
+  /** The label on the home-screen tile. */
+  label: string;
+  /** The line telling the customer they are leaving Swaply. */
+  description: string;
+}
