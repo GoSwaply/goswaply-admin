@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, ArrowLeftRight, RefreshCw, Bitcoin, Gift, ScanFace,
   ShieldAlert, ShieldCheck, Briefcase, ScrollText, Settings2, DollarSign, Tag, Wrench,
-  Flag, MonitorOff, Megaphone, Bell, Activity, Webhook, Terminal, Lock,
+  Flag, MonitorOff, Megaphone, Bell, Activity, Webhook, Terminal, Lock, Plane,
   ChevronDown, ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -69,6 +69,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Margins", href: "/config/margins", icon: <Settings2 className="h-4 w-4" />, superAdminOnly: true },
       { label: "Gift Card Rates", href: "/config/gift-cards", icon: <Gift className="h-4 w-4" /> },
       { label: "App Prompt", href: "/config/sell-prompt", icon: <Megaphone className="h-4 w-4" />, superAdminOnly: true },
+      { label: "Flights", href: "/config/flights", icon: <Plane className="h-4 w-4" />, superAdminOnly: true },
       { label: "Fee Rules", href: "/config/fee-rules", icon: <DollarSign className="h-4 w-4" />, superAdminOnly: true },
       { label: "Biller Pricing", href: "/config/biller-pricing", icon: <Tag className="h-4 w-4" />, superAdminOnly: true },
       { label: "Feature Flags", href: "/config/feature-flags", icon: <Flag className="h-4 w-4" />, superAdminOnly: true },

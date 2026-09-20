@@ -40,6 +40,7 @@ export type {
   SellPromptFrequency,
   SellPromptAudience,
   SellPromptConfig,
+  FlightReferralConfig,
 } from "./config";
 export { GIFT_CARD_FORMAT_LABELS } from "./config";
 export type {

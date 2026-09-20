@@ -25,6 +25,7 @@ export const QueryKeys = {
   giftCardRates: (brandId?: string) => ["giftCardRates", brandId] as const,
   giftCardRiskConfig: () => ["giftCardRiskConfig"] as const,
   sellPrompt: () => ["sellPrompt"] as const,
+  flightReferral: () => ["flightReferral"] as const,
   vasMargin: () => ["vasMargin"] as const,
   feeRules: () => ["feeRules"] as const,
   billerPricing: () => ["billerPricing"] as const,
