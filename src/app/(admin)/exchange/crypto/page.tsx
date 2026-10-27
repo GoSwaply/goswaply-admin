@@ -9,13 +9,13 @@ import { CryptoAssetSettings } from "@/components/exchange/CryptoAssetSettings";
 type CryptoSection = "BUY" | "SELL" | "SETTINGS";
 
 export default function CryptoQueuePage() {
-  const [section, setSection] = useState<CryptoSection>("BUY");
+  const [section, setSection] = useState<CryptoSection>("SETTINGS");
 
   return (
     <div className="space-y-5 animate-fade-in">
       <PageHeader
         title="Crypto Exchange"
-        description="Review customer buy and sell requests, and manage supported assets."
+        description="Configure payment and receiving accounts before enabling customer crypto trades."
       />
       <Tabs value={section} onValueChange={(value) => setSection(value as CryptoSection)}>
         <TabsList className="h-auto flex-wrap">

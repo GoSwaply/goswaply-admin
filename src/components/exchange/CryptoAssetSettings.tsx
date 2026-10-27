@@ -130,9 +130,22 @@ export function CryptoAssetSettings() {
   const submitAsset = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const minAmount = Number(assetForm.minAmount);
-    const maxAmount = Number(assetForm.maxAmount);
-    if (!Number.isFinite(minAmount) || !Number.isFinite(maxAmount) || minAmount <= 0 || maxAmount < minAmount) {
-      toast.error("Enter a positive minimum and a maximum greater than or equal to it.");
+    const hasMaximum = assetForm.maxAmount.trim().length > 0;
+    const maxAmount = hasMaximum ? Number(assetForm.maxAmount) : null;
+    if (
+      !Number.isFinite(minAmount) ||
+      minAmount <= 0 ||
+      (maxAmount !== null &&
+        (!Number.isFinite(maxAmount) || maxAmount < minAmount))
+    ) {
+      toast.error("Enter a positive minimum and a valid maximum above it.");
+      return;
+    }
+    if (
+      assetForm.sellEnabled &&
+      assetForm.sellReceivingWalletAddress.trim().length === 0
+    ) {
+      toast.error("Add the sell receiving wallet address before enabling sells.");
       return;
     }
     saveAsset.mutate({ id: editing?.id, values: toAsset(assetForm) });
@@ -152,7 +165,7 @@ export function CryptoAssetSettings() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold">Supported crypto assets</h2>
-            <p className="text-sm text-muted-foreground">Manage customer-facing assets and their buy/sell limits.</p>
+            <p className="text-sm text-muted-foreground">Configure customer-facing assets, sell receiving wallets, and trade limits.</p>
           </div>
           <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />Add asset</Button>
         </div>
@@ -207,6 +220,11 @@ export function CryptoAssetSettings() {
       <section className="rounded-2xl border p-5">
         <h2 className="text-lg font-semibold">Fiat buy-payment account</h2>
         <p className="mb-4 text-sm text-muted-foreground">Bank details customers use to pay for crypto purchases.</p>
+        {!accountQuery.isLoading && !accountQuery.isError && !accountQuery.data && (
+          <p className="mb-4 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm">
+            Not configured yet. Customers cannot submit crypto buy requests until this account is saved.
+          </p>
+        )}
         {accountQuery.isError ? <ErrorState error={accountQuery.error} onRetry={accountQuery.refetch} /> : (
           <form onSubmit={submitAccount} className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2"><Label htmlFor="crypto-account-name">Account name</Label><Input id="crypto-account-name" value={account.accountName} onChange={(event) => setAccount({ ...account, accountName: event.target.value })} required /></div>
