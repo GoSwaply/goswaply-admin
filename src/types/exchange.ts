@@ -24,6 +24,60 @@ export interface CryptoSellRequest {
   updatedAt: string;
 }
 
+export type CryptoDirection = "BUY" | "SELL";
+
+export interface CryptoAsset {
+  id: string;
+  coinName: string;
+  symbol: string;
+  iconUrl: string | null;
+  network: string;
+  coinGeckoId: string;
+  sellReceivingWalletAddress: string | null;
+  buyEnabled: boolean;
+  sellEnabled: boolean;
+  isActive: boolean;
+  minAmount: number | string;
+  maxAmount: number | string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type CryptoAssetInput = Omit<CryptoAsset, "id" | "createdAt" | "updatedAt">;
+
+export interface CryptoBuyPaymentAccount {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+}
+
+export interface CryptoReviewRequest {
+  id: string;
+  direction: CryptoDirection;
+  amount: number | string;
+  currency: string;
+  coinName: string;
+  iconUrl: string | null;
+  network: string;
+  walletAddress: string;
+  paymentReference: string | null;
+  cryptoTransactionHash: string | null;
+  payoutAccountName: string | null;
+  payoutAccountNumber: string | null;
+  payoutBankName: string | null;
+  paymentAmountNaira: number | string | null;
+  rateAtSubmission: number | string | null;
+  nairaValue: number | string | null;
+  marginPercent: number | string | null;
+  status: ExchangeStatus;
+  reference: string;
+  fulfillmentReference: string | null;
+  payoutReference: string | null;
+  receiptKey: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /** A risk rule that fired on a submission without blocking it. */
 export interface GiftCardRiskFlag {
   code: string;

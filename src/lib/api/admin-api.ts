@@ -8,7 +8,11 @@ import type {
   Transaction,
   VasReconciliation,
   TreasurySummary,
-  CryptoSellRequest,
+  CryptoDirection,
+  CryptoAsset,
+  CryptoAssetInput,
+  CryptoBuyPaymentAccount,
+  CryptoReviewRequest,
   GiftCardSellRequest,
   KycSubmission,
   MarginConfig,
@@ -82,11 +86,22 @@ export const adminApi = {
   getTreasury: () => get<TreasurySummary>(`${B}/treasury/summary`),
 
   // Exchange – Crypto
-  // Both pending endpoints return a bare array, not a paginated envelope.
-  cryptoPending: () => get<CryptoSellRequest[]>(`${B}/exchange/crypto/pending`),
-  approveCrypto: (id: string) => post<CryptoSellRequest>(`${B}/exchange/crypto/${id}/approve`),
+  cryptoPending: (direction: CryptoDirection) =>
+    get<CryptoReviewRequest[]>(`${B}/exchange/crypto/pending${qs({ direction })}`),
+  approveCrypto: (id: string, body: { fulfillmentReference: string }) =>
+    post<CryptoReviewRequest>(`${B}/exchange/crypto/${id}/approve`, body),
   rejectCrypto: (id: string, body: { reason: string }) =>
-    post<CryptoSellRequest>(`${B}/exchange/crypto/${id}/reject`, body),
+    post<CryptoReviewRequest>(`${B}/exchange/crypto/${id}/reject`, body),
+  cryptoReceipt: (id: string) => getBlob(`${B}/exchange/crypto/${id}/receipt`),
+  listCryptoAssets: () => get<CryptoAsset[]>(`${B}/exchange/crypto/assets`),
+  createCryptoAsset: (body: CryptoAssetInput) =>
+    post<CryptoAsset>(`${B}/exchange/crypto/assets`, body),
+  updateCryptoAsset: (id: string, body: Partial<CryptoAssetInput>) =>
+    patch<CryptoAsset>(`${B}/exchange/crypto/assets/${id}`, body),
+  getCryptoPaymentAccount: () =>
+    get<CryptoBuyPaymentAccount | null>(`${B}/exchange/crypto/payment-account`),
+  setCryptoPaymentAccount: (body: CryptoBuyPaymentAccount) =>
+    put<CryptoBuyPaymentAccount>(`${B}/exchange/crypto/payment-account`, body),
 
   // Exchange – Gift Card
   giftCardPending: () => get<GiftCardSellRequest[]>(`${B}/exchange/gift-card/pending`),
