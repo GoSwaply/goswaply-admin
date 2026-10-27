@@ -49,7 +49,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Exchange & KYC",
     items: [
-      { label: "Crypto Requests", href: "/exchange/crypto", icon: <Bitcoin className="h-4 w-4" /> },
+      { label: "Crypto Exchange", href: "/exchange/crypto", icon: <Bitcoin className="h-4 w-4" /> },
       { label: "Gift Card Requests", href: "/exchange/gift-cards", icon: <Gift className="h-4 w-4" /> },
       { label: "KYC Queue", href: "/kyc", icon: <ScanFace className="h-4 w-4" /> },
     ],

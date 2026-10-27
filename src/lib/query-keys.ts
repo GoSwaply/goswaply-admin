@@ -10,7 +10,10 @@ export const QueryKeys = {
   reconciliation: () => ["reconciliation"] as const,
   treasury: () => ["treasury"] as const,
 
-  cryptoPending: (params?: object) => ["cryptoPending", params] as const,
+  cryptoPending: (direction?: "BUY" | "SELL") => ["cryptoPending", direction] as const,
+  cryptoAssets: () => ["cryptoAssets"] as const,
+  cryptoPaymentAccount: () => ["cryptoPaymentAccount"] as const,
+  cryptoReceipt: (id: string) => ["cryptoReceipt", id] as const,
   giftCardPending: (params?: object) => ["giftCardPending", params] as const,
   giftCardImage: (id: string) => ["giftCardImage", id] as const,
   kycPending: (params?: object) => ["kycPending", params] as const,

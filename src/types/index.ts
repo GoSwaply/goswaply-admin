@@ -16,6 +16,11 @@ export type {
 export type {
   ExchangeStatus,
   CryptoSellRequest,
+  CryptoDirection,
+  CryptoAsset,
+  CryptoAssetInput,
+  CryptoBuyPaymentAccount,
+  CryptoReviewRequest,
   GiftCardSellRequest,
   GiftCardRiskFlag,
 } from "./exchange";
