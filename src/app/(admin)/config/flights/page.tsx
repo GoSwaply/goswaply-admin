@@ -148,7 +148,7 @@ export default function FlightReferralPage() {
             />
             <p className="text-sm text-muted-foreground">
               Shown in a sheet before the customer leaves the app. Be clear that
-              booking and payment happen on the partner's site, not with their
+              booking and payment happen on the partner&apos;s site, not with their
               Swaply balance.
             </p>
           </div>
