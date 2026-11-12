@@ -66,8 +66,13 @@ export default function WebhooksPage() {
           <SelectTrigger className="h-8 w-36 text-sm"><SelectValue placeholder="All Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
-            {["RECEIVED", "PROCESSED", "FAILED", "REPROCESSING"].map((s) => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
+            {[
+              { value: "PENDING", label: "RECEIVED" },
+              { value: "SUCCESS", label: "PROCESSED" },
+              { value: "FAILED_PERMANENT", label: "FAILED" },
+              { value: "REPROCESSING", label: "REPROCESSING" },
+            ].map((status) => (
+              <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
