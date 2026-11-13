@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { loginSchema, type LoginInput } from "@/schemas/auth.schema";
-import { authApi } from "@/lib/api/auth-api";
+import { authApi, AuthApiError } from "@/lib/api/auth-api";
 import { useAuthStore } from "@/stores/auth-store";
 import { toast } from "sonner";
 
@@ -42,6 +42,8 @@ export function LoginForm() {
       const message =
         err instanceof TypeError
           ? "Could not reach the API. Check your connection, or that this site is allowed to call it."
+          : err instanceof AuthApiError && err.statusCode === 429
+            ? err.message
           : err instanceof Error && /\b(404|not found)\b/i.test(err.message)
             ? "The API address looks wrong. Check NEXT_PUBLIC_API_BASE_URL for this deployment."
             : "Login failed. Please check your credentials and try again.";

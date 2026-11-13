@@ -3,6 +3,16 @@ import type { LoginResponse, RefreshResponse } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
+export class AuthApiError extends Error {
+  constructor(
+    readonly statusCode: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "AuthApiError";
+  }
+}
+
 export const authApi = {
   async login(email: string, password: string): Promise<LoginResponse> {
     // Direct fetch for login to avoid attaching stale tokens
@@ -17,10 +27,12 @@ export const authApi = {
     if (!res.ok) {
       let message = "Login failed. Please check your credentials.";
       try {
-        const body = (await res.json()) as { message?: string };
-        if (body.message) message = body.message;
+        const body = (await res.json()) as { message?: unknown };
+        if (typeof body.message === "string" && body.message) {
+          message = body.message;
+        }
       } catch {}
-      throw new Error(message);
+      throw new AuthApiError(res.status, message);
     }
 
     return res.json() as Promise<LoginResponse>;
